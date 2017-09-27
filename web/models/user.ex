@@ -5,16 +5,25 @@ defmodule PhoenixChat.User do
     field :email, :string
     field :encrypted_password, :string
     field :username, :string
+    field :password, :string, virtual: true
 
     timestamps()
   end
 
-  @required_fields ~w(email encrypted_password username)
+  @required_fields ~w(email username)
   @optional_fields ~w()
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
+  def registration_changeset(model, params) do
+    model
+    |> changeset(params)
+    |> cast(params, ~w(password), [])
+    |> validate_length(:password, min: 6, max: 100)
+    |> put_encrypted_pw
+  end
+
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields, @optional_fields)
@@ -24,5 +33,14 @@ defmodule PhoenixChat.User do
     |> unique_constraint(:email)
     |> update_change(:username, &String.downcase/1)
     |> unique_constraint(:username)
+  end
+
+  defp put_encrypted_pw(changeset) do
+    case changeset do
+      %Ecto.Changeset{valid?: true, changes: %{password: pass}} ->
+        put_change(changeset, :encrypted_password, Comeonin.Bcrypt.hashpwsalt(pass))
+      _ ->
+        changeset
+    end
   end
 end
