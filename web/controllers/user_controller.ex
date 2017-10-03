@@ -13,9 +13,10 @@ defmodule PhoenixChat.UserController do
 
     case Repo.insert(changeset) do
       {:ok, user} ->
+        {:ok, token, _claims} = Guardian.encode_and_sign(user, :token)
+
         conn
         |> put_status(:created)
-        # |> put_resp_header("location", user_path(conn, :show, user))
         |> render("show.json", user: user)
       {:error, changeset} ->
         conn

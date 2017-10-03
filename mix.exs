@@ -29,7 +29,9 @@ defmodule PhoenixChat.Mixfile do
         :phoenix_ecto,
         :phoenix_html,
         :phoenix_pubsub,
-        :postgrex
+        :postgrex,
+        :ueberauth,
+        :ueberauth_identity
       ]
     ]
   end
@@ -52,7 +54,10 @@ defmodule PhoenixChat.Mixfile do
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:gettext, "~> 0.11"},
-      {:cowboy, "~> 1.0"}
+      {:cowboy, "~> 1.0"},
+      {:ueberauth, "~> 0.2"},
+      {:ueberauth_identity, "~> 0.2"},
+      {:guardian, "~> 0.10"}
     ]
   end
 
