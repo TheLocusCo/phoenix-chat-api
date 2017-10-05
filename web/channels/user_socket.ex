@@ -1,8 +1,11 @@
 defmodule PhoenixChat.UserSocket do
   use Phoenix.Socket
 
+  alias PhoenixChat.{Repo, User}
+
   ## Channels
-  # channel "room:*", PhoenixChat.RoomChannel
+  channel "room:*", PhoenixChat.RoomChannel
+  # channel "admin:*", PhoenixChat.AdminChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -19,7 +22,21 @@ defmodule PhoenixChat.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
+  def connect(params, socket) do
+    user_id = params["id"]
+    user = user_id && Repo.get(User, user_id)
+    validate_params!(params)
+
+    socket = if user do
+        socket
+        |> assign(:user_id, user_id)
+        |> assign(:username, user.username)
+        |> assign(:email, user.email)
+      else
+        socket
+        |> assign(:uuid, params["uuid"])
+      end
+
     {:ok, socket}
   end
 
@@ -34,4 +51,12 @@ defmodule PhoenixChat.UserSocket do
   #
   # Returning `nil` makes this socket anonymous.
   def id(_socket), do: nil
+
+  @empty ["", nil]
+  defp validate_params!(%{"id" => id, "uuid" => uuid})
+  when id in @empty or uuid in @empty do
+    raise "id or uuid must not be empty"
+  end
+
+  defp validate_params!(_), do: nil
 end
