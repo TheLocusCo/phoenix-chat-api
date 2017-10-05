@@ -5,7 +5,7 @@ defmodule PhoenixChat.UserSocket do
 
   ## Channels
   channel "room:*", PhoenixChat.RoomChannel
-  # channel "admin:*", PhoenixChat.AdminChannel
+  channel "admin:*", PhoenixChat.AdminChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -25,7 +25,6 @@ defmodule PhoenixChat.UserSocket do
   def connect(params, socket) do
     user_id = params["id"]
     user = user_id && Repo.get(User, user_id)
-    validate_params!(params)
 
     socket = if user do
         socket
@@ -34,6 +33,7 @@ defmodule PhoenixChat.UserSocket do
         |> assign(:email, user.email)
       else
         socket
+        |> assign(:user_id, nil)
         |> assign(:uuid, params["uuid"])
       end
 

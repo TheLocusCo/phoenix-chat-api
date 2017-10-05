@@ -23,6 +23,7 @@ defmodule PhoenixChat.Mixfile do
       applications: [
         :comeonin,
         :cowboy,
+        :faker,
         :gettext,
         :logger,
         :phoenix,
@@ -47,6 +48,7 @@ defmodule PhoenixChat.Mixfile do
     [
       {:comeonin, "~> 2.3"},
       {:corsica, "~> 0.4"},
+      {:faker, "~> 0.7"},
       {:phoenix, "~> 1.3.0-rc"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_ecto, "~> 3.2"},
