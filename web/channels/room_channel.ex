@@ -9,19 +9,9 @@ defmodule PhoenixChat.RoomChannel do
       messages = room_id
         |> Message.latest_room_messages
         |> Repo.all
-        |> Enum.map(&message_payload/1)
         |> Enum.reverse
       {:ok, %{messages: messages}, socket}
     end)
-  end
-
-  defp message_payload(message) do
-    from = message.user_id || message.from
-    %{body: message.body,
-      timestamp: message.timestamp,
-      room: message.room,
-      from: from,
-      id: message.id}
   end
 
   def handle_in("message", payload, socket) do

@@ -3,6 +3,8 @@ defmodule PhoenixChat.Message do
 
   alias PhoenixChat.{DateTime, User, AnonymousUser}
 
+  @derive {Poison.Encoder, only: ~w(id body timestamp room user_id anonymous_user_id)a}
+
   schema "messages" do
     field :body, :string
     field :timestamp, DateTime
