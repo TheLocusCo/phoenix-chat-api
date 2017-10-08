@@ -3,6 +3,8 @@ defmodule PhoenixChat.Message do
 
   alias PhoenixChat.{DateTime, User, AnonymousUser}
 
+  require Logger
+
   @derive {Poison.Encoder, only: ~w(id body timestamp room user_id anonymous_user_id)a}
 
   schema "messages" do
@@ -25,8 +27,9 @@ defmodule PhoenixChat.Message do
   with no validation performed.
   """
   def changeset(model, params \\ :empty) do
+    Logger.info("In message changeset #{inspect params}")
     model
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @required_fields ++ @optional_fields)
   end
 
   @doc """

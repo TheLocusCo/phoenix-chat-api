@@ -5,20 +5,47 @@ defmodule PhoenixChat.AdminChannel do
 
   use PhoenixChat.Web, :channel
   require Logger
-  intercept ~w(lobby_list)
 
   alias PhoenixChat.{Presence, Repo, AnonymousUser}
+
+  intercept ~w(lobby_list)
 
   @doc """
   The `admin:active_users` topic is how we identify all users currently using the app.
   """
   def join("admin:active_users", payload, socket) do
+    Logger.info("Join::uuid:#{socket.assigns[:uuid]}::user_id::#{socket.assigns[:user_id]}::assigns::#{inspect socket.assigns}")
     authorize(payload, fn ->
       send(self, :after_join)
       id = socket.assigns[:uuid] || socket.assigns[:user_id]
       lobby_list = AnonymousUser.recently_active_users |> Repo.all
       {:ok, %{id: id, lobby_list: lobby_list}, socket}
     end)
+  end
+
+  @doc """
+  This handles the `:after_join` event and tracks the presence of the socket that
+  has subscribed to the `admin:active_users` topic.
+  """
+
+  def handle_info(:after_join, %{assigns: %{uuid: uuid}} = socket) do
+    Logger.info "Preparing to save user for: #{uuid}"
+    user = ensure_user_saved!(uuid)
+
+    broadcast! socket, "lobby_list", user
+
+    push socket, "presence_state", Presence.list(socket)
+    Logger.info "Presence for socket: #{inspect socket}"
+    {:ok, _} = Presence.track(socket, uuid, %{
+      online_at: inspect(System.system_time(:seconds))
+    })
+    {:noreply, socket}
+  end
+
+  def handle_info(:after_join, %{assigns: %{user_id: _user_id}} = socket) do
+    Logger.info "After Join for presence state::#{_user_id}"
+    push socket, "presence_state", Presence.list(socket)
+    {:noreply, socket}
   end
 
   @doc """
@@ -29,28 +56,6 @@ defmodule PhoenixChat.AdminChannel do
     if assigns[:user_id] do
       push socket, "lobby_list", payload
     end
-    {:noreply, socket}
-  end
-
-  @doc """
-  This handles the `:after_join` event and tracks the presence of the socket that
-  has subscribed to the `admin:active_users` topic.
-  """
-  def handle_info(:after_join, %{assigns: %{user_id: _user_id}} = socket) do
-    push socket, "presence_state", Presence.list(socket)
-    {:noreply, socket}
-  end
-
-  def handle_info(:after_join, %{assigns: %{uuid: uuid}} = socket) do
-    user = ensure_user_saved!(uuid)
-
-    broadcast! socket, "lobby_list", user
-
-    push socket, "presence_state", Presence.list(socket)
-    Logger.debug "Presence for socket: #{inspect socket}"
-    {:ok, _} = Presence.track(socket, uuid, %{
-      online_at: inspect(System.system_time(:seconds))
-    })
     {:noreply, socket}
   end
 
