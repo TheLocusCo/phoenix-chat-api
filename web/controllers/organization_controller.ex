@@ -1,7 +1,9 @@
 defmodule PhoenixChat.OrganizationController do
   use PhoenixChat.Web, :controller
 
-  alias PhoenixChat.Organization
+  alias PhoenixChat.{Organization, Repo}
+
+  plug :scrub_params, "organization" when action in [:create, :update]
 
   def index(conn, _params) do
     organizations = Repo.all(Organization)

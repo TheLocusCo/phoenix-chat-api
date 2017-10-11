@@ -73,6 +73,13 @@ defmodule PhoenixChat.UserTest do
     changeset = User.registration_changeset(%User{}, valid_attrs)
     assert changeset.valid?
     assert get_change(changeset, :encrypted_password)
+
+    # Test that a new owned_organization is created properly if it is provided
+    valid_attrs = %{owned_organization: %{website: "http://www.foo.com"}}
+    changeset = User.registration_changeset(changeset, valid_attrs)
+    assert changeset.valid?
+    assert get_change(changeset, :owned_organization).changes.website == "http://www.foo.com"
+    assert get_change(changeset, :owned_organization).changes.public_key
   end
 
   test "registration changeset with invalid password length" do

@@ -1,8 +1,9 @@
 defmodule PhoenixChat.UserController do
   use PhoenixChat.Web, :controller
-  require Logger
 
   alias PhoenixChat.{Email, Mailer, User}
+
+  plug :scrub_params, "user" when action in [:create, :update]
 
   # def index(conn, _params) do
   #   users = Repo.all(User)
@@ -12,13 +13,13 @@ defmodule PhoenixChat.UserController do
   # plug :scrub_params, "user" when action in [:create, :update]
 
   def create(conn, %{"user" => user_params}) do
-    Logger.info("In pre error params #{inspect user_params}")
+    # Logger.info("In pre error params #{inspect user_params}")
     changeset = User.registration_changeset(%User{}, user_params)
-    Logger.info("In pre error changeset #{inspect changeset}")
+    # Logger.info("In pre error changeset #{inspect changeset}")
 
     case Repo.insert(changeset) do
       {:ok, user} ->
-        Logger.info("????")
+        # Logger.info("????")
         {:ok, token, _claims} = Guardian.encode_and_sign(user, :token)
 
         send_welcome_email(user)
@@ -27,7 +28,7 @@ defmodule PhoenixChat.UserController do
         |> put_status(:created)
         |> render("show.json", user: user)
       {:error, changeset} ->
-        Logger.info("In user error changeset #{inspect changeset}")
+        # Logger.info("In user error changeset #{inspect changeset}")
         conn
         |> put_status(:unprocessable_entity)
         |> render(PhoenixChat.ChangesetView, "error.json", changeset: changeset)

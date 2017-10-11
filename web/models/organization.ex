@@ -15,15 +15,25 @@ defmodule PhoenixChat.Organization do
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
-  def changeset(struct, params \\ %{}) do
+  def changeset(struct, params \\ %{}, association \\ false) do
+    required_fields = if association, do: [:website], else: [:website, :owner_id]
+
     struct
     |> cast(params, [:website, :owner_id])
-    |> validate_required([:website, :owner_id])
+    |> validate_required(required_fields)
     |> update_change(:website, &set_uri_scheme/1)
     |> validate_change(:website, &validate_website/2)
     |> unique_constraint(:website)
     |> put_public_key()
     |> unique_constraint(:public_key)
+  end
+
+  @doc """
+  User for `cast_assoc/2` in `User.registration_changeset/2`. It's only difference
+  from `changeset/3` is that it does not require an `owner_id`.
+  """
+  def owner_changeset(struct, params \\ %{}) do
+    changeset(struct, params, true)
   end
 
   defp put_public_key(%{data: data} = changeset) do

@@ -63,6 +63,11 @@ defmodule PhoenixChat.OrganizationTest do
     assert org1.public_key != org2.public_key
   end
 
+  test "owner changeset does not require an owner id" do
+    changeset = Organization.owner_changeset(%Organization{}, %{website: "foo.com"})
+    assert changeset.valid?
+  end
+
   test "changeset's website must be a valid url" do
     some_invalid_urls = ["test this", "???", "...", ".www.foo.bar.", "foo.", "ftp://foo.com"]
 
