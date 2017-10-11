@@ -7,8 +7,8 @@ config :phoenix_chat, PhoenixChat.Endpoint,
   server: false
 
 # Print only warnings and errors during test
-config :logger, level: :warn
-# config :logger, backends: [:console], compile_time_purge_level: :debug
+# config :logger, level: :warn
+config :logger, backends: [:console], compile_time_purge_level: :debug
 
 config :comeonin, :bcrypt_log_rounds, 4
 config :comeonin, :pbkdf2_rounds, 1

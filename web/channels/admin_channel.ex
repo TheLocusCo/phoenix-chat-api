@@ -14,12 +14,11 @@ defmodule PhoenixChat.AdminChannel do
   The `admin:active_users` topic is how we identify all users currently using the app.
   """
   def join("admin:active_users", payload, socket) do
-    Logger.info("Join::uuid:#{socket.assigns[:uuid]}::user_id::#{socket.assigns[:user_id]}::assigns::#{inspect socket.assigns}")
+    Logger.info("Join::uuid::#{socket.assigns[:uuid]}::user_id::#{socket.assigns[:user_id]}::assigns::#{inspect socket.assigns}")
     authorize(payload, fn ->
       send(self, :after_join)
       id = socket.assigns[:uuid] || socket.assigns[:user_id]
-      lobby_list = AnonymousUser.recently_active_users |> Repo.all
-      {:ok, %{id: id, lobby_list: lobby_list}, socket}
+      {:ok, %{id: id, lobby_list: admin_lobby_list}, socket}
     end)
   end
 
@@ -57,6 +56,10 @@ defmodule PhoenixChat.AdminChannel do
       push socket, "lobby_list", payload
     end
     {:noreply, socket}
+  end
+
+  def admin_lobby_list do
+    AnonymousUser.recently_active_users |> Repo.all
   end
 
   defp ensure_user_saved!(uuid) do

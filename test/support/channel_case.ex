@@ -15,6 +15,8 @@ defmodule PhoenixChat.ChannelCase do
 
   use ExUnit.CaseTemplate
 
+  alias PhoenixChat.{Repo, AnonymousUser}
+
   using do
     quote do
       # Import conveniences for testing with channels
@@ -25,7 +27,7 @@ defmodule PhoenixChat.ChannelCase do
       import Ecto.Changeset
       import Ecto.Query
 
-
+      import PhoenixChat.ChannelCase
       # The default endpoint for testing
       @endpoint PhoenixChat.Endpoint
     end
@@ -39,5 +41,15 @@ defmodule PhoenixChat.ChannelCase do
     end
 
     :ok
+  end
+
+  def create_anon_user!() do
+    Repo.insert! %AnonymousUser{id: "3c8c40ad-68bf-4e4a-9627-9ebddd2431e2"}
+  end
+
+  def create_anon_user!(attrs) do
+    map = Map.merge(%{id: "3c8c40ad-68bf-4e4a-9627-9ebddd2431e2"}, attrs)
+    struct = struct(AnonymousUser, map)
+    Repo.insert! struct
   end
 end

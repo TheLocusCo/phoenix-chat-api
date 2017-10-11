@@ -15,11 +15,11 @@ defmodule PhoenixChat.RoomChannel do
   end
 
   def handle_in("message", payload, socket) do
-    Logger.info("Posting message...#{inspect socket.assigns}")
+    Logger.debug("Posting message...#{inspect socket.assigns}")
     payload = payload
       |> Map.put("user_id", socket.assigns[:user_id])
       |> Map.put("anonymous_user_id", socket.assigns[:uuid])
-    Logger.info("Payload...#{inspect payload}")
+    Logger.debug("Payload...#{inspect payload}")
     changeset = Message.changeset(%Message{}, payload)
 
     case Repo.insert(changeset) do

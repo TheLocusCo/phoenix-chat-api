@@ -1,5 +1,4 @@
 defmodule PhoenixChat.UserControllerTest do
-  require IEx
   use PhoenixChat.ConnCase
 
   alias PhoenixChat.User
@@ -9,7 +8,7 @@ defmodule PhoenixChat.UserControllerTest do
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
-  
+
   # Non default tests below
 
   test "creates and renders resource when data is valid", %{conn: conn} do
