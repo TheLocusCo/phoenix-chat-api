@@ -1,10 +1,13 @@
 defmodule PhoenixChat.Organization do
   use PhoenixChat.Web, :model
+  alias PhoenixChat.{User}
 
   schema "organizations" do
     field :public_key, :string
     field :website, :string
-    belongs_to :owner, PhoenixChat.Owner
+
+    has_many  :admins, User, foreign_key: :organization_id
+    belongs_to :owner, User
 
     timestamps()
   end
@@ -14,8 +17,8 @@ defmodule PhoenixChat.Organization do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:website])
-    |> validate_required([:website])
+    |> cast(params, [:website, :owner_id])
+    |> validate_required([:website, :owner_id])
     |> update_change(:website, &set_uri_scheme/1)
     |> validate_change(:website, &validate_website/2)
     |> unique_constraint(:website)
