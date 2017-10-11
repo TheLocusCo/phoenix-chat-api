@@ -3,11 +3,11 @@ defmodule PhoenixChat.UserTest do
 
   alias PhoenixChat.User
 
-  @valid_attrs %{email: "some email", encrypted_password: "some encrypted_password", username: "some username"}
+  @valid_attrs %{email: "me@test.com", password: "some password", username: "some username"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
-    changeset = User.changeset(%User{}, @valid_attrs)
+    changeset = User.registration_changeset(%User{}, @valid_attrs)
     assert changeset.valid?
   end
 

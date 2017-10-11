@@ -18,8 +18,8 @@ defmodule PhoenixChat.Message do
     timestamps
   end
 
-  @required_fields ~w(body timestamp room)
-  @optional_fields ~w(anonymous_user_id user_id)
+  @required_fields ~w(body timestamp room)a
+  @optional_fields ~w(anonymous_user_id user_id)a
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -30,6 +30,7 @@ defmodule PhoenixChat.Message do
     Logger.info("In message changeset #{inspect params}")
     model
     |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
   end
 
   @doc """

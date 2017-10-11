@@ -8,12 +8,19 @@ config :phoenix_chat, PhoenixChat.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+# config :logger, backends: [:console], compile_time_purge_level: :debug
+
+config :comeonin, :bcrypt_log_rounds, 4
+config :comeonin, :pbkdf2_rounds, 1
 
 # Configure your database
 config :phoenix_chat, PhoenixChat.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: "locuscorev2",
+  password: "locuscorev2",
   database: "phoenix_chat_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :phoenix_chat, PhoenixChat.Mailer,
+  adapter: Bamboo.TestAdapter

@@ -15,6 +15,8 @@ defmodule PhoenixChat.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias PhoenixChat.{Repo, User}
+
   using do
     quote do
       # Import conveniences for testing with connections
@@ -26,6 +28,7 @@ defmodule PhoenixChat.ConnCase do
       import Ecto.Query
 
       import PhoenixChat.Router.Helpers
+      import PhoenixChat.ConnCase
 
       # The default endpoint for testing
       @endpoint PhoenixChat.Endpoint
@@ -40,5 +43,15 @@ defmodule PhoenixChat.ConnCase do
     end
 
     {:ok, conn: Phoenix.ConnTest.build_conn()}
+  end
+
+  def create_user!() do
+    Repo.insert! %User{username: "foo", email: "foo@bar.com"}
+  end
+
+  def create_user!(attrs) do
+    map = Map.merge(%{username: "foo", email: "foo@bar.com"}, attrs)
+    struct = struct(User, map)
+    Repo.insert! struct
   end
 end

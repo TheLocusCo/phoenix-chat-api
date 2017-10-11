@@ -26,7 +26,9 @@ config :phoenix_chat, PhoenixChat.Endpoint,
   check_origin: false,
   watchers: []
 
-
+config :phoenix_chat, PhoenixChat.Mailer,
+  adapter: Bamboo.LocalAdapter
+  
 # Watch static and templates for browser reloading.
 config :phoenix_chat, PhoenixChat.Endpoint,
   live_reload: [

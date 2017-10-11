@@ -21,6 +21,7 @@ defmodule PhoenixChat.Mixfile do
     [
       mod: {PhoenixChat, []},
       applications: [
+        :bamboo,
         :comeonin,
         :cowboy,
         :faker,
@@ -46,6 +47,7 @@ defmodule PhoenixChat.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bamboo, "~> 0.7"},
       {:comeonin, "~> 2.3"},
       {:corsica, "~> 0.4"},
       {:faker, "~> 0.7"},

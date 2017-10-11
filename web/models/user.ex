@@ -10,8 +10,8 @@ defmodule PhoenixChat.User do
     timestamps()
   end
 
-  @required_fields ~w(email username)
-  @optional_fields ~w()
+  @required_fields ~w(email username)a
+  @optional_fields ~w()a
 
   @doc """
   Builds a changeset based on the `struct` and `params`.
@@ -27,6 +27,7 @@ defmodule PhoenixChat.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
     |> validate_format(:email, ~r/@/)
     |> validate_length(:username, min: 1, max: 20)
     |> update_change(:email, &String.downcase/1)
