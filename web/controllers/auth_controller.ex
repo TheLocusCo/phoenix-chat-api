@@ -8,7 +8,11 @@ defmodule PhoenixChat.AuthController do
 
   def me(conn, _params) do
     user = Guardian.Plug.current_resource(conn)
-    render(conn, UserView, "show.json", user: user)
+    org = Repo.preload(user, :organization).organization || Repo.preload(user, :owned_organization).owned_organization
+    case org do
+      nil -> render(conn, UserView, "show.json", user: user)
+      org -> render(conn, UserView, "show.json", user: user, org: org)
+    end
   end
 
   def callback(%{assigns: %{ueberauth_auth: auth}} = conn, _params) do

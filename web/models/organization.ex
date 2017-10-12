@@ -1,6 +1,6 @@
 defmodule PhoenixChat.Organization do
   use PhoenixChat.Web, :model
-  alias PhoenixChat.{User}
+  alias PhoenixChat.{User, Repo}
 
   schema "organizations" do
     field :public_key, :string
@@ -21,6 +21,7 @@ defmodule PhoenixChat.Organization do
     struct
     |> cast(params, [:website, :owner_id])
     |> validate_required(required_fields)
+    |> validate_change(:owner_id, &validate_new_owner_admin/2)
     |> update_change(:website, &set_uri_scheme/1)
     |> validate_change(:website, &validate_website/2)
     |> unique_constraint(:website)
@@ -73,5 +74,16 @@ defmodule PhoenixChat.Organization do
 
   defp valid_host_format?(host) do
     Regex.match? ~r/^([a-zA-z]+\.)*[a-zA-Z]+$/, host
+  end
+
+  defp validate_new_owner_admin(:owner_id, owner_id) do
+    user = Repo.get! User, owner_id
+    org = Repo.preload(user, :organization).organization || Repo.preload(user, :owned_organization).owned_organization
+
+    if org do
+      [owner_id: "user is owner or admin of existing organization"]
+    else
+      []
+    end
   end
 end

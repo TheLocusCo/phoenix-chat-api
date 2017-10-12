@@ -11,6 +11,10 @@ defmodule PhoenixChat.UserView do
     %{data: render_one(user, UserView, "user_token.json", token: token)}
   end
 
+  def render("show.json", %{user: user, org: org}) do
+    %{data: render_one(user, UserView, "user_organization.json", org: org)}
+  end
+
   def render("show.json", %{user: user}) do
     %{data: render_one(user, UserView, "user.json")}
   end
@@ -26,5 +30,13 @@ defmodule PhoenixChat.UserView do
       id: user.id,
       token: token,
       username: user.username}
+  end
+
+  def render("user_organization.json", %{user: user, org: org}) do
+    %{email: user.email,
+      id: user.id,
+      username: user.username,
+      website: org.website,
+      public_key: org.public_key}
   end
 end

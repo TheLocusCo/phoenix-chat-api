@@ -47,7 +47,9 @@ defmodule PhoenixChat.OrganizationTest do
     changeset = Organization.changeset(%Organization{}, @valid_attrs)
     Repo.insert! changeset
 
-    changeset = Organization.changeset(%Organization{}, @valid_attrs)
+    ConnCase.create_user!(%{id: 2, email: "diff@test.com", username: "testingguy"})
+
+    changeset = Organization.changeset(%Organization{}, %{website: "foo.com", owner_id: 2})
     {:error, changeset} = Repo.insert(changeset)
 
     assert {:website, {"has already been taken", []}} in changeset.errors
@@ -57,7 +59,9 @@ defmodule PhoenixChat.OrganizationTest do
     changeset = Organization.changeset(%Organization{}, %{website: "http://foo.com", owner_id: 1})
     org1 = Repo.insert! changeset
 
-    changeset = Organization.changeset(%Organization{}, %{website: "http://bar.com", owner_id: 1})
+    ConnCase.create_user!(%{id: 2, email: "diff@test.com", username: "testingguy"})
+
+    changeset = Organization.changeset(%Organization{}, %{website: "http://bar.com", owner_id: 2})
     org2 = Repo.insert! changeset
 
     assert org1.public_key != org2.public_key
