@@ -6,20 +6,46 @@ defmodule PhoenixChat.AdminChannel do
   use PhoenixChat.Web, :channel
   require Logger
 
-  alias PhoenixChat.{Presence, Repo, AnonymousUser}
+  alias PhoenixChat.{Presence, Repo, AnonymousUser, LobbyList}
 
   intercept ~w(lobby_list)
 
   @doc """
   The `admin:active_users` topic is how we identify all users currently using the app.
   """
+  # def join("admin:active_users", payload, socket) do
+  #   Logger.info("Join::uuid::#{socket.assigns[:uuid]}::user_id::#{socket.assigns[:user_id]}::assigns::#{inspect socket.assigns}")
+  #   authorize(payload, fn ->
+  #     send(self, :after_join)
+  #     id = socket.assigns[:uuid] || socket.assigns[:user_id]
+  #     {:ok, %{id: id, lobby_list: admin_lobby_list}, socket}
+  #   end)
+  # end
+
   def join("admin:active_users", payload, socket) do
-    Logger.info("Join::uuid::#{socket.assigns[:uuid]}::user_id::#{socket.assigns[:user_id]}::assigns::#{inspect socket.assigns}")
     authorize(payload, fn ->
       send(self, :after_join)
-      id = socket.assigns[:uuid] || socket.assigns[:user_id]
-      {:ok, %{id: id, lobby_list: admin_lobby_list}, socket}
+
+      public_key = socket.assigns.public_key
+      lobby_list = LobbyList.lookup(public_key)
+      {:ok, %{lobby_list: lobby_list}, socket}
     end)
+  end
+
+  def handle_info(:after_join, socket) do
+    %{assigns: assigns} = socket
+    id = assigns.user_id || assigns.uuid
+
+    # Keep track of rooms to be displayed to admins
+    LobbyList.insert(assigns.public_key, id)
+    broadcast! socket, "lobby_list", %{uuid: id, public_key: assigns.public_key}
+
+    # Keep track of users that are online
+    push socket, "presence_state", Presence.list(socket)
+    {:ok, _} = Presence.track(socket, id, %{
+        online_at: inspect(System.system_time(:seconds))
+      })
+    {:noreply, socket}
   end
 
   @doc """
@@ -27,23 +53,25 @@ defmodule PhoenixChat.AdminChannel do
   has subscribed to the `admin:active_users` topic.
   """
 
-  def handle_info(:after_join, %{assigns: %{uuid: uuid}} = socket) do
-    Logger.info "Preparing to save user for: #{uuid}"
-    user = ensure_user_saved!(uuid)
+  # def handle_info(:after_join, %{assigns: %{uuid: uuid}} = socket) do
+  #   Logger.info "Preparing to save user for: #{uuid}"
+  #   user = ensure_user_saved!(uuid)
 
-    broadcast! socket, "lobby_list", user
+  #   broadcast! socket, "lobby_list", user
 
-    push socket, "presence_state", Presence.list(socket)
-    Logger.info "Presence for socket: #{inspect socket}"
-    {:ok, _} = Presence.track(socket, uuid, %{
-      online_at: inspect(System.system_time(:seconds))
-    })
-    {:noreply, socket}
-  end
+  #   push socket, "presence_state", Presence.list(socket)
+  #   Logger.info "Presence for socket: #{inspect socket}"
+  #   {:ok, _} = Presence.track(socket, uuid, %{
+  #     online_at: inspect(System.system_time(:seconds))
+  #   })
+  #   {:noreply, socket}
+  # end
 
-  def handle_info(:after_join, %{assigns: %{user_id: _user_id}} = socket) do
-    Logger.info "After Join for presence state::#{_user_id}"
-    push socket, "presence_state", Presence.list(socket)
+  def handle_out("lobby_list", payload, socket) do
+    %{assigns: assigns} = socket
+    if assigns.user_id && assigns.public_key == payload.public_key do
+      push socket, "lobby_list", payload
+    end
     {:noreply, socket}
   end
 

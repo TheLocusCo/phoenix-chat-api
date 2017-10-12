@@ -36,6 +36,7 @@ defmodule PhoenixChat.UserSocket do
         |> assign(:user_id, nil)
         |> assign(:uuid, params["uuid"])
       end
+        |> assign(:public_key, params["public_key"])
 
     {:ok, socket}
   end

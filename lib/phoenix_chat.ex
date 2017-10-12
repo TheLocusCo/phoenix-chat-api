@@ -11,7 +11,8 @@ defmodule PhoenixChat do
       supervisor(PhoenixChat.Endpoint, []),
       # Start the Ecto repository
       supervisor(PhoenixChat.Repo, []),
-      supervisor(PhoenixChat.Presence, [])
+      supervisor(PhoenixChat.Presence, []),
+      supervisor(PhoenixChat.LobbyList, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
