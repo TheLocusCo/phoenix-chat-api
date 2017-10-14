@@ -1,5 +1,7 @@
 defmodule PhoenixChat.Email do
   use Bamboo.Phoenix, view: PhoenixChat.EmailView
+  import Bamboo.Email
+  import Bamboo.Phoenix
 
   alias PhoenixChat.{User}
 
